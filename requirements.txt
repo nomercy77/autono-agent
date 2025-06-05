@@ -1,0 +1,11 @@
+# Recommended Python >=3.9
+
+# Core requirements
+asyncio  # part of Python stdlib, no need to install separately
+
+# For dataclasses (Python 3.7+ stdlib, but include for clarity)
+dataclasses; python_version<'3.7'
+
+# Testing
+pytest>=7.0
+pytest-asyncio>=0.20
