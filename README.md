@@ -93,10 +93,8 @@ You will be prompted to select a mode:
 
 ## 🧪 Running Tests
 
-To run all tests:
+To run a test:
 
 ```sh
 pytest tests/{test_file_name}.py
 ```
-
-- Tests cover agent integration, message handling, and behaviors.
