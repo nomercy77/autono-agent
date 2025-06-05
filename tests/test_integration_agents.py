@@ -5,7 +5,7 @@ from src.data_models.message_model import Message
 
 '''
 This test manually simulates the initial message exchange between two agents by placing messages 
-in their outboxes and then swapping them into the other agents inboxes — exactly as done in the main agent loop (run_concurrent_agents).
+in their outboxes and then swapping them into the other agents inboxes — exactly as done in the main agent loop.
 
 Purpose:
 By checking the inboxes immediately after the swap (and before starting the agents), 
