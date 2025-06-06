@@ -21,7 +21,7 @@ def hello_handler(message_content):
         if "hello" in message_content.lower():
             return Message('string', message_content)
         else:
-            return Message('string', 'Hello_not_found')
+            return Message('string', 'hello_not_found')
     except Exception as e:
         # Handle any unexpected errors
         print(f"Error in hello_handler: {e}")

@@ -46,8 +46,8 @@ def register_custom_behavior(agent, behavior_function = None):
 
 async def create_concrete_agent_instance(
         agent_name: str = "agent 1",
-        message_handler: dict = {"type" : "string", "function" : hello_handler},
-        behaviors: list = [random_two_word_generator]        
+        message_handler: dict = {"type" : "string", "function" : hello_handler}, # passing handler function as default
+        behaviors: list = [random_two_word_generator]     # passing current behavior function as default   
         ):
     """
     Create an agent instance with a default handler and behavior.
@@ -90,45 +90,56 @@ async def run_concurrent_agents(
             if agent1 is None or agent2 is None:
                 print("Error: Could not create both agents.")
                 return None
+            
             # start agents
             agent1.start()
             agent2.start()
+            
             # Send initial message to an agent to trigger conversation between them (optional)
             if isinstance(init_agent_messages, list) and all(isinstance(m, Message) for m in init_agent_messages): # type checks
                 if len(init_agent_messages) == 2:
                     await agent1.outbox.put(init_agent_messages[0])
                     await agent2.outbox.put(init_agent_messages[1])
+            
             cycle = 1
             start_time = asyncio.get_event_loop().time()
             while True:
                 now = asyncio.get_event_loop().time()
                 if now - start_time >= run_duration_seconds:
                     break
+                
                 try:
                     agent1_outbox = await agent1.outbox.get()
                     agent2_outbox = await agent2.outbox.get()
                 except Exception as e:
                     print(f"Error getting outbox messages: {e}")
                     break
+                
                 # Print the messages being swapped                    
-                print(f"Cycle {cycle} 🚀\n")
-                print(f"🔄 Swapping:")
-                print(f"  {agent1.name} outbox: {agent1_outbox}  ➡️   {agent2.name} inbox")
-                print(f"  {agent2.name} outbox: {agent2_outbox}  ➡️   {agent1.name} inbox.\n")
+                print(f"Cycle {cycle} 🚀\n"
+                      f"🔄 Swapping: \n"
+                      f"  {agent1.name} outbox: {agent1_outbox}  ➡️   {agent2.name} inbox \n"
+                      f"  {agent2.name} outbox: {agent2_outbox}  ➡️   {agent1.name} inbox.\n"
+                )
+                
                 # Perform the swap - inbox of agent 1 is the outbox of agent 2 and vice versa
                 try:
                     await agent1.inbox.put(agent2_outbox)
                     await agent2.inbox.put(agent1_outbox)
                 except Exception as e:
                     print(f"Error putting messages in inbox: {e}")
+                
                 # Print the current state of the queues - for debugging, please ignore multiple print
-                print(f"📥 {agent1.name} inbox:  {list(agent1.inbox._queue)}")
-                print(f"📤 {agent1.name} outbox: {list(agent1.outbox._queue)}\n")
-                print(f"📥 {agent2.name} inbox:  {list(agent2.inbox._queue)}")
-                print(f"📤 {agent2.name} outbox: {list(agent2.outbox._queue)}")
-                print(f"{'='*60}\n")
+                print(
+                    f"📥 {agent1.name} inbox:  {list(agent1.inbox._queue)}\n"
+                    f"📤 {agent1.name} outbox: {list(agent1.outbox._queue)}\n"
+                    f"📥 {agent2.name} inbox:  {list(agent2.inbox._queue)}\n"
+                    f"📤 {agent2.name} outbox: {list(agent2.outbox._queue)}\n"
+                    f"{'='*60}\n"
+                )
                 cycle += 1
                 await asyncio.sleep(1)  # Keeps the event loop alive
+            
             print("\n🛑 Stopping agents..")
             agent1.stop()
             agent2.stop()
